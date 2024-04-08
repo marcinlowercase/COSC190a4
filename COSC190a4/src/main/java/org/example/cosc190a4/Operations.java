@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -31,7 +32,18 @@ public class Operations extends Application {
         hBox.setAlignment(Pos.CENTER);
         hBox.setSpacing(20);
 
+
+
+
+        // Message from client
+        Label label = new Label();
+
+
+
+
+
         BorderPane borderPane = new BorderPane();
+        borderPane.setCenter(label);
         borderPane.setBottom(hBox);
         borderPane.setPadding(new Insets(0, 0, 20, 0));
 
@@ -57,7 +69,22 @@ public class Operations extends Application {
             while (true) {
                 Socket connectedClient = serverSocket.accept();
 
-                DataInputStream inputStreamFromCLient = new DataInputStream(connectedClient.getInputStream());
+                DataInputStream inputStreamFromClient = new DataInputStream(connectedClient.getInputStream());
+
+                String messageFromClient = inputStreamFromClient.readUTF();
+                System.out.println(messageFromClient);
+
+
+
+
+
+                // Respond to client
+
+                DataOutputStream outputStreamToClient = new DataOutputStream(connectedClient.getOutputStream());
+
+                String messageToClient = "Hello" + new Date();
+                outputStreamToClient.writeUTF(messageToClient);
+
 
 
 
