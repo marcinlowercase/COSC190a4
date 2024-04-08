@@ -6,5 +6,4 @@ module org.example.cosc190a4 {
 
     opens org.example.cosc190a4 to javafx.fxml;
     exports org.example.cosc190a4;
-    exports org.example.cosc190a4.test;
 }

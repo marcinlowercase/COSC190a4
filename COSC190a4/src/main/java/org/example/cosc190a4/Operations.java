@@ -40,8 +40,42 @@ public class Operations extends Application {
 
 
         stage.setScene(scene);
-
         stage.show();
+
+        Thread serverThread = new Thread(() -> startServer());
+        serverThread.setDaemon(true);
+        serverThread.start();
+
+
+    }
+
+
+    private void startServer(){
+        try (ServerSocket serverSocket = new ServerSocket(9999)){
+            System.out.println("Server started.Serving at port: " + 9999);
+
+            while (true) {
+                Socket connectedClient = serverSocket.accept();
+
+                DataInputStream inputStreamFromCLient = new DataInputStream(connectedClient.getInputStream());
+
+
+
+            }
+
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+
+}
+
+
+
+
 //        try {
 //            ServerSocket serverSocket = new ServerSocket(9999);
 //            System.out.println("Server started.Serving at port: " + 9999);
@@ -69,16 +103,3 @@ public class Operations extends Application {
 //        } catch (IOException e) {
 //            throw new RuntimeException(e);
 //        }
-
-    }
-
-    private void startServer(){
-        try (ServerSocket serverSocket = new ServerSocket(9999)){
-
-
-
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-}
