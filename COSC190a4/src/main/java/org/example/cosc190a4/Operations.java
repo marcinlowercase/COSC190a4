@@ -22,8 +22,9 @@ import java.util.Optional;
 public class Operations extends Application {
 
 
-    TextField log = new TextField();
-    HBox logBox = new HBox(log);
+    StringBuilder logString = new StringBuilder();
+    TextField logField = new TextField();
+    HBox logBox = new HBox(logField);
     Button showLog = new Button("Show log");
     Button clearLog = new Button("Clear log");
     Button exit = new Button("Exit");
@@ -32,10 +33,13 @@ public class Operations extends Application {
     @Override
     public void start(Stage stage) throws Exception {
 
+
+
         // Three buttons
         logBox.setAlignment(Pos.CENTER);
         logBox.setPadding(new Insets(10, 10, 10, 10));
         logBox.setSpacing(10);
+
 
 
 
@@ -67,10 +71,10 @@ public class Operations extends Application {
 
         // log box size
 
-        log.setPrefWidth(stage.getWidth() * 0.7);
-        log.setPrefHeight(stage.getHeight() * 0.7);
-        log.prefWidthProperty().bind(stage.widthProperty().multiply(0.7));
-        log.prefHeightProperty().bind(stage.heightProperty().multiply(0.7));
+        logField.setPrefWidth(stage.getWidth() * 0.7);
+        logField.setPrefHeight(stage.getHeight() * 0.7);
+        logField.prefWidthProperty().bind(stage.widthProperty().multiply(0.7));
+        logField.prefHeightProperty().bind(stage.heightProperty().multiply(0.7));
 
         // Button bar size
         buttonHBox.setAlignment(Pos.CENTER);
@@ -138,9 +142,12 @@ public class Operations extends Application {
 
                 DataInputStream inputStreamFromClient = new DataInputStream(socket.getInputStream());
 
-                String messageFromClient = inputStreamFromClient.readUTF();
 
-                System.out.println(messageFromClient);
+//                logString.append(inputStreamFromClient.readUTF());
+//                logString.append("\n");
+//                logField.setText(logString.toString());
+                logField.appendText(inputStreamFromClient.readUTF() + "\n");
+
             }
 
 
