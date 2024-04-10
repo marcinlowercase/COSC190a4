@@ -5,10 +5,7 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -23,8 +20,8 @@ public class Operations extends Application {
 
 
     StringBuilder logString = new StringBuilder();
-    TextField logField = new TextField();
-    HBox logBox = new HBox(logField);
+    TextArea logArea = new TextArea();
+    HBox logBox = new HBox(logArea);
     Button showLog = new Button("Show log");
     Button clearLog = new Button("Clear log");
     Button exit = new Button("Exit");
@@ -59,29 +56,19 @@ public class Operations extends Application {
 
 
         stage.setScene(scene);
-
-
+        stage.setTitle("Operations");
         stage.show();
-        stage.setMinWidth(stage.getWidth());
-        stage.setMinHeight(stage.getHeight());
         stage.setResizable(false);
-//        stage.widthProperty().bind(scene.widthProperty().multiply(scene.heightProperty().divide(stage.heightProperty())));
+
+        logArea.setPrefWidth(stage.getWidth() * 0.7);
+        logArea.setPrefHeight(stage.getHeight() * 0.7);
 
 
-
-        // log box size
-
-        logField.setPrefWidth(stage.getWidth() * 0.7);
-        logField.setPrefHeight(stage.getHeight() * 0.7);
-        logField.prefWidthProperty().bind(stage.widthProperty().multiply(0.7));
-        logField.prefHeightProperty().bind(stage.heightProperty().multiply(0.7));
 
         // Button bar size
         buttonHBox.setAlignment(Pos.CENTER);
         buttonHBox.setSpacing(20);
 
-//        buttonHBox.setPrefHeight(stage.getHeight() * 0.2);
-//        buttonHBox.prefHeightProperty().bind(stage.heightProperty().multiply(0.2));
 
         //Start server
 
@@ -146,7 +133,7 @@ public class Operations extends Application {
 //                logString.append(inputStreamFromClient.readUTF());
 //                logString.append("\n");
 //                logField.setText(logString.toString());
-                logField.appendText(inputStreamFromClient.readUTF() + "\n");
+                logArea.appendText(inputStreamFromClient.readUTF() + "\n");
 
             }
 

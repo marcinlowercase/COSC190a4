@@ -9,6 +9,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -26,9 +27,11 @@ import java.net.Socket;
 
 public class Client extends Application {
 
-    TextField chatField = new TextField();
+
+    TextArea chatArea = new TextArea();
+    HBox chatHBox = new HBox(chatArea);
     TextField chatBox;
-    Button sendButton;
+//    Button sendButton;
 
     static String serverAddress;
     static int serverPort;
@@ -69,14 +72,17 @@ public class Client extends Application {
     public void start(Stage stage) throws Exception {
         BorderPane borderPane = new BorderPane();
         chatBox = new TextField();
-        sendButton = new Button("Send");
 
-        HBox hBox = new HBox();
-        hBox.getChildren().addAll(chatBox, sendButton);
-        hBox.setSpacing(10);
-//        hBox.setPadding(new Insets(10, 10, 10, 10));
-        hBox.setPadding(new Insets(10, 10, 10, 10));
-        hBox.setAlignment(Pos.CENTER);
+        HBox buttonHBox = new HBox();
+        buttonHBox.getChildren().addAll(chatBox);
+        buttonHBox.setSpacing(10);
+        buttonHBox.setPadding(new Insets(10, 10, 0, 10));
+        buttonHBox.setAlignment(Pos.CENTER);
+
+
+
+        chatHBox.setPadding(new Insets(10, 10, 10, 10)); // bob
+        chatHBox.setSpacing(10);
 
 
         chatBox.setOnAction(actionEvent -> {
@@ -87,20 +93,24 @@ public class Client extends Application {
             }
         });
 
-        sendButton.setOnAction(actionEvent -> {
-            try {
-                sendToServer(serverAddress, serverPort);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        });
 
 
-        borderPane.setBottom(hBox);
-        Scene scene = new Scene(borderPane, 800, 600);
+        chatHBox.setAlignment(Pos.CENTER);
+
+
+        borderPane.setCenter(chatHBox);
+        borderPane.setBottom(buttonHBox);
+        borderPane.setPadding(new Insets(20, 20, 20, 20));
+
+        Scene scene = new Scene(borderPane, 800, 400);
         stage.setScene(scene);
         stage.setTitle("Chat Program");
+        stage.setResizable(false);
         stage.show();
+
+        chatArea.setPrefWidth(stage.getWidth() * 0.7);
+        chatArea.setPrefHeight(stage.getHeight() * 0.7);
+
     }
 
     private void sendToServer(String serverAddress, int serverPort) throws IOException {
