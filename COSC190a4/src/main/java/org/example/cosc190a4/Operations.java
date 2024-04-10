@@ -14,39 +14,38 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.io.DataInputStream;
-import java.io.DataOutput;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Date;
 import java.util.Optional;
 
 public class Operations extends Application {
 
 
     TextField log = new TextField();
+    HBox logBox = new HBox(log);
     Button showLog = new Button("Show log");
     Button clearLog = new Button("Clear log");
     Button exit = new Button("Exit");
+    HBox buttonHBox = new HBox(showLog, clearLog, exit);
 
     @Override
     public void start(Stage stage) throws Exception {
+
         // Three buttons
+        logBox.setAlignment(Pos.CENTER);
+        logBox.setPadding(new Insets(10, 10, 10, 10));
+        logBox.setSpacing(10);
 
-        log.setPrefSize(stage.getWidth(), stage.getHeight()*0.8);
 
-        HBox hBox = new HBox(showLog, clearLog, exit);
-        hBox.setAlignment(Pos.CENTER);
-        hBox.setSpacing(20);
 
         BorderPane borderPane = new BorderPane();
-        borderPane.setPadding(new Insets(0, 0, 20, 0));
-        borderPane.setBottom(hBox);
-        borderPane.setTop(log);
+        borderPane.setPadding(new Insets(20, 20, 20, 20));
+        borderPane.setBottom(buttonHBox);
+        borderPane.setTop(logBox);
 
 
-        Scene scene = new Scene(borderPane, 400, 400);
+        Scene scene = new Scene(borderPane, 800, 400);
 
 
 
@@ -54,12 +53,37 @@ public class Operations extends Application {
         exit.setOnAction(event -> turnOffServer());
 
 
+
         stage.setScene(scene);
 
+
         stage.show();
+        stage.setMinWidth(stage.getWidth());
+        stage.setMinHeight(stage.getHeight());
+        stage.setResizable(false);
+//        stage.widthProperty().bind(scene.widthProperty().multiply(scene.heightProperty().divide(stage.heightProperty())));
+
+
+
+        // log box size
+
+        log.setPrefWidth(stage.getWidth() * 0.7);
+        log.setPrefHeight(stage.getHeight() * 0.7);
+        log.prefWidthProperty().bind(stage.widthProperty().multiply(0.7));
+        log.prefHeightProperty().bind(stage.heightProperty().multiply(0.7));
+
+        // Button bar size
+        buttonHBox.setAlignment(Pos.CENTER);
+        buttonHBox.setSpacing(20);
+
+//        buttonHBox.setPrefHeight(stage.getHeight() * 0.2);
+//        buttonHBox.prefHeightProperty().bind(stage.heightProperty().multiply(0.2));
+
+        //Start server
 
         Thread startServerThread = new Thread(this::startServer);
         startServerThread.start();
+
 
 
 //        try {
