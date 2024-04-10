@@ -1,6 +1,5 @@
 package org.example.cosc190a4;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -8,13 +7,11 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -27,11 +24,10 @@ import java.net.Socket;
 
 public class Client extends Application {
 
-
     TextArea chatArea = new TextArea();
-    HBox chatHBox = new HBox(chatArea);
+    HBox chatAreaHBox = new HBox(chatArea);
     TextField chatBox;
-//    Button sendButton;
+
 
     static String serverAddress;
     static int serverPort;
@@ -73,16 +69,21 @@ public class Client extends Application {
         BorderPane borderPane = new BorderPane();
         chatBox = new TextField();
 
-        HBox buttonHBox = new HBox();
-        buttonHBox.getChildren().addAll(chatBox);
-        buttonHBox.setSpacing(10);
-        buttonHBox.setPadding(new Insets(10, 10, 0, 10));
-        buttonHBox.setAlignment(Pos.CENTER);
+        Label lblMessage = new Label("Message: ");
+//        chatAreaHBox.getChildren().add(lblMessage);
+
+        chatArea.setEditable(false); // Makes the chat box un-editable TreyO
+
+        HBox chatBoxHBox = new HBox();
+        chatBoxHBox.getChildren().addAll(lblMessage, chatBox);
+        chatBoxHBox.setSpacing(10);
+        chatBoxHBox.setPadding(new Insets(10, 10, 0, 10));
+        chatBoxHBox.setAlignment(Pos.CENTER);
 
 
 
-        chatHBox.setPadding(new Insets(10, 10, 10, 10)); // bob
-        chatHBox.setSpacing(10);
+        chatAreaHBox.setPadding(new Insets(10, 10, 10, 10)); // bob
+        chatAreaHBox.setSpacing(10);
 
 
         chatBox.setOnAction(actionEvent -> {
@@ -95,11 +96,11 @@ public class Client extends Application {
 
 
 
-        chatHBox.setAlignment(Pos.CENTER);
+        chatAreaHBox.setAlignment(Pos.CENTER);
 
 
-        borderPane.setCenter(chatHBox);
-        borderPane.setBottom(buttonHBox);
+        borderPane.setCenter(chatAreaHBox);
+        borderPane.setBottom(chatBoxHBox);
         borderPane.setPadding(new Insets(20, 20, 20, 20));
 
         Scene scene = new Scene(borderPane, 800, 400);
@@ -110,6 +111,8 @@ public class Client extends Application {
 
         chatArea.setPrefWidth(stage.getWidth() * 0.7);
         chatArea.setPrefHeight(stage.getHeight() * 0.7);
+        chatBoxHBox.setPrefWidth(stage.getWidth() * chatBox.getWidth());
+        chatBox.setPrefWidth(stage.getWidth()*0.7 - lblMessage.getWidth() - 10);
 
     }
 
