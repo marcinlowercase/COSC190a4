@@ -12,11 +12,16 @@ import javafx.stage.Stage;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Optional;
 
 public class Operations extends Application {
+
 
 
     StringBuilder logString = new StringBuilder();
@@ -28,6 +33,23 @@ public class Operations extends Application {
     HBox buttonHBox = new HBox(showLog, clearLog, exit);
 
     Boolean isWindowClosing = false;
+
+
+    // Element to work with database
+    static String DatabasePath = "data_files/Assignment-4-2024.accdb" ;
+    static int messageIDCount = 1;
+    static Connection connection;
+
+    static {
+        try {
+            connection = DBHelper.connect(DBHelper.DB_TYPE.ACCESS, DatabasePath);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -141,7 +163,14 @@ public class Operations extends Application {
 
 //                System.out.println("Accepted connection from: " + socket.getInetAddress().getHostAddress());
 
-                DataInputStream inputStreamFromClient = new DataInputStream(socket.getInputStream());
+//                DataInputStream inputStreamFromClient = new DataInputStream(socket.getInputStream());
+
+                ObjectInputStream inputStreamFromClient = new ObjectInputStream(socket.getInputStream());
+                MessageEntry newMessageEntry = (MessageEntry) inputStreamFromClient.readObject();
+
+
+                writeNewMessageEntryToDataBase(newMessageEntry);
+
 
 
 //                logString.append(inputStreamFromClient.readUTF());
@@ -154,10 +183,33 @@ public class Operations extends Application {
 
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
+    private void writeNewMessageEntryToDataBase(MessageEntry messageEntry) throws SQLException, ClassNotFoundException {
 
+
+
+        String insertSQL = "INSERT INTO ChatLog (ID, ReceivedTimeStamp, ReceviedFromUserHandle, ReceviedFromUserEmail, ReceivedChatMessage, ReceivedFromUserIP, ReceivedFromUserPort, ReceivedFromUserPreferredColor) "
+                +"VALUES (?, ?, ?, ?, ?)";
+
+
+
+
+    }
+
+    private void getMessageIDCount() throws SQLException {
+        String countRowQuery = "SELECT COUNT(*) FROM LinkedAccessTable;";
+        ResultSet countIDMessageRS = DBHelper.execute(connection, countRowQuery);
+        if (countIDMessageRS.next()){
+            messageIDCount = countIDMessageRS.getInt(1);
+        }
+        countIDMessageRS.close();
+    }
 
 
 }

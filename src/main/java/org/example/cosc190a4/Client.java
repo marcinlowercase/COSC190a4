@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -17,6 +18,8 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Date;
+import java.util.Optional;
 
 
 public class Client extends Application {
@@ -28,8 +31,8 @@ public class Client extends Application {
 
 
     static User userOnDevices;
-    static String serverAddress;
-    static int serverPort;
+    static String serverAddress = "localhost";
+    static int serverPort = 9999;
 
 
 
@@ -55,10 +58,15 @@ public class Client extends Application {
           // JSON handler
 
 //        handleUserInfo();
-          serverAddress = "localhost";
-          serverPort = 9999;
 
-          Application.launch();
+        if (args.length >= 1){
+            serverAddress = args[2];
+        }
+        if (args.length >= 2){
+            serverPort = Integer.parseInt(args[1]);
+        }
+
+        Application.launch();
 
     }
 
@@ -106,7 +114,6 @@ public class Client extends Application {
 
     private User loadUserFromInfoJson() {
         try (BufferedReader reader = new BufferedReader(new FileReader(JSONPath))) {
-
             return mapper.readValue(reader.readLine(), new TypeReference<User>() {});
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -128,9 +135,12 @@ public class Client extends Application {
         String messageToServer = chatBox.getText();
 
 
-        DataOutputStream outputStream = new DataOutputStream(connectedServer.getOutputStream());
+        ObjectOutputStream outputStreamToServer = new ObjectOutputStream(connectedServer.getOutputStream());
+        outputStreamToServer.writeObject(new MessageEntry(new Date(), userOnDevices.getHandle(), userOnDevices.getEmail(), chatBox.getText(), userOnDevices.returnColor() ));
 
-        outputStream.writeUTF(messageToServer);
+//        DataOutputStream outputStream = new DataOutputStream(connectedServer.getOutputStream());
+//
+//        outputStream.writeUTF(messageToServer);
 
 
     }
@@ -319,13 +329,14 @@ public class Client extends Application {
 
         BorderPane borderPane = new BorderPane();
         chatBox = new TextField();
+        chatBox.setPromptText("Enter a message here");
 
-        Label lblMessage = new Label("Message: ");
+//        Label lblMessage = new Label("Message: ");
 
         chatArea.setEditable(false); // Makes the chat box un-editable TreyO
 
         HBox chatBoxHBox = new HBox();
-        chatBoxHBox.getChildren().addAll(lblMessage, chatBox);
+        chatBoxHBox.getChildren().addAll(/*lblMessage,*/ chatBox);
         chatBoxHBox.setSpacing(10);
         chatBoxHBox.setPadding(new Insets(10, 10, 0, 10));
         chatBoxHBox.setAlignment(Pos.CENTER);
@@ -343,6 +354,19 @@ public class Client extends Application {
             }
         });
 
+        stage.setOnCloseRequest(windowEvent -> {
+            Alert exitAlert = new Alert(Alert.AlertType.CONFIRMATION);
+            exitAlert.setTitle("Exit Confirmation");
+            exitAlert.setHeaderText("Exit Confirmation");
+            exitAlert.setContentText("Are you sure you want to exit?");
+            Optional<ButtonType> result = exitAlert.showAndWait();
+
+            if (result.get() == ButtonType.OK) Platform.exit();
+            else {
+                windowEvent.consume();
+                exitAlert.close();
+            }
+        });
 
 
         chatAreaHBox.setAlignment(Pos.CENTER);
@@ -361,7 +385,7 @@ public class Client extends Application {
         chatArea.setPrefWidth(stage.getWidth() * 0.7);
         chatArea.setPrefHeight(stage.getHeight() * 0.7);
         chatBoxHBox.setPrefWidth(stage.getWidth() * chatBox.getWidth());
-        chatBox.setPrefWidth(stage.getWidth()*0.7 - lblMessage.getWidth() - 10);
+        chatBox.setPrefWidth(stage.getWidth()*0.7 /*- lblMessage.getWidth() - 10*/);
     }
 
 }

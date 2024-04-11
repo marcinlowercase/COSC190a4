@@ -19,12 +19,12 @@ public class Test {
 //        User user1 = new User("theo", "TT", "255", "0", "100", "theodore@gmail.com");
 //        mapper.writeValue(new File("data_files/info.json"), user1);
 
-//        String test = "{\"username\":\"theo\",\"handle\":\"TT\",\"textColor\":\"0xff0064ff\",\"email\":\"theodore@gmail.com\"}";
-        String test2 = "{\"username\":\"theo\",\"handle\":\"TT\",\"textColor\":{\"red\":1.0,\"green\":0.0,\"blue\":0.3921568691730499,\"opacity\":1.0,\"opaque\":true,\"saturation\":1.0,\"brightness\":1.0,\"hue\":336.470587849617},\"email\":\"theodore@gmail.com\"}";
-        User userTHeo = mapper.readValue(test2, new TypeReference<User>() {});
-
+          String test = "{\"username\":\"theo\",\"handle\":\"TT\",\"red\":255,\"green\":0,\"blue\":100,\"email\":\"theodore@gmail.com\"}";
+//        String test2 = "{\"username\":\"theo\",\"handle\":\"TT\",\"textColor\":{\"red\":1.0,\"green\":0.0,\"blue\":0.3921568691730499,\"opacity\":1.0,\"opaque\":true,\"saturation\":1.0,\"brightness\":1.0,\"hue\":336.470587849617},\"email\":\"theodore@gmail.com\"}";
+        User userTHeo = mapper.readValue(test, new TypeReference<User>() {});
+//
         System.out.println(userTHeo);
-        Color hello = Color.grayRgb(0xff0064ff);
+
 
     }
 
