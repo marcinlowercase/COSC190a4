@@ -27,6 +27,8 @@ public class Operations extends Application {
     Button exit = new Button("Exit");
     HBox buttonHBox = new HBox(showLog, clearLog, exit);
 
+    Boolean isWindowClosing = false;
+
     @Override
     public void start(Stage stage) throws Exception {
 
@@ -60,6 +62,11 @@ public class Operations extends Application {
         stage.show();
         stage.setResizable(false);
 
+        stage.setOnCloseRequest(windowEvent -> {
+            turnOffServer();
+            if (!isWindowClosing) windowEvent.consume();
+        });
+
         logArea.setPrefWidth(stage.getWidth() * 0.7);
         logArea.setPrefHeight(stage.getHeight() * 0.7);
 
@@ -74,6 +81,7 @@ public class Operations extends Application {
 
         Thread startServerThread = new Thread(this::startServer);
         startServerThread.start();
+
 
 
 
@@ -114,8 +122,14 @@ public class Operations extends Application {
         exitAlert.setContentText("Are you sure you want to exit?");
         Optional<ButtonType> result = exitAlert.showAndWait();
 
-        if (result.get() == ButtonType.OK) Platform.exit();
-        else exitAlert.close();
+        if (result.get() == ButtonType.OK) {
+            Platform.exit();
+            isWindowClosing = true;
+        }
+        else {
+            exitAlert.close();
+            isWindowClosing = false;
+        }
     }
 
     private void startServer(){
