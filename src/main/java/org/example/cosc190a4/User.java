@@ -6,17 +6,24 @@ public class User {
 
     private String username;
     private String handle;
-    private String textColor;
+    private Color textColor;
     private String email;
 
 
     public User() {
     }
 
-    public User(String username, String handle, String textColor, String email) {
+    public User(String username, String handle, Color textColor, String email) {
         this.username = username;
         this.handle = handle;
         this.textColor = textColor;
+        this.email = email;
+    }
+
+    public User(String username, String handle, String red, String green, String blue, String email) {
+        this.username = username;
+        this.handle = handle;
+        this.textColor = Color.rgb(Integer.parseInt(red), Integer.parseInt(green), Integer.parseInt(blue));
         this.email = email;
     }
 
@@ -28,9 +35,14 @@ public class User {
         return handle;
     }
 
-    public String getTextColor() {
+//    public Color getTextColor() {
+//        return textColor;
+//    }
+
+    public Color getTextColor() {
         return textColor;
     }
+
 
     public String getEmail() {
         return email;
@@ -44,8 +56,8 @@ public class User {
         this.handle = handle;
     }
 
-    public void setTextColor(String textColor) {
-        this.textColor = textColor;
+    public void setTextColor(String red, String green, String blue) {
+        this.textColor = Color.rgb(Integer.parseInt(red), Integer.parseInt(green), Integer.parseInt(blue));
     }
 
     public void setEmail(String email) {
@@ -54,11 +66,20 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
-                "username='" + username + '\'' +
-                ", handle='" + handle + '\'' +
-                ", textColor=" + textColor +
-                ", email='" + email + '\'' +
-                '}';
+
+        return "{ \"username\": \""
+                + this.username
+                + "\", \"handle\": \""
+                + handle
+                + "\", \"red\": \""
+                + (int) (textColor.getRed() * 255 )
+                + "\", \"green\": \""
+                + (int) (textColor.getGreen() * 255 )
+                + "\", \"blue\": \""
+                + (int) (textColor.getBlue() * 255 )
+                + "\", \"email\": \""
+                + email
+                + "\" }";
+
     }
 }

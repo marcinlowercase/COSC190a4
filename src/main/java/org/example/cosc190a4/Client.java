@@ -16,10 +16,7 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.Socket;
-
-
-
-
+import java.util.Date;
 
 
 public class Client extends Application {
@@ -29,6 +26,8 @@ public class Client extends Application {
     TextField chatBox;
 
 
+
+    static User userOnDevices;
     static String serverAddress;
     static int serverPort;
 
@@ -73,11 +72,7 @@ public class Client extends Application {
 
         } else {
 
-
-
-
-
-//            User user1 = new User("theo", "TT", "Color.RED", "theodore@gmail.com");
+            //            User user1 = new User("theo", "TT", "Color.RED", "theodore@gmail.com");
 //            mapper.writeValue(new File(JSONPath), user1);
         }
     }
@@ -86,68 +81,18 @@ public class Client extends Application {
     public void start(Stage stage) throws Exception {
 
 
-
-
         if (alreadyHaveUserInfo()){
+            userOnDevices = loadUserFromInfoJson();
             changeToChatScene(stage);
         } else {
             changeToSetupScene(stage);
         }
         stage.show();
 
+    }
 
-
-//        // Main Scene /////////////////////////////////////////////////////
-//
-//        BorderPane borderPane = new BorderPane();
-//        chatBox = new TextField();
-//
-//        Label lblMessage = new Label("Message: ");
-////        chatAreaHBox.getChildren().add(lblMessage);
-//
-//        chatArea.setEditable(false); // Makes the chat box un-editable TreyO
-//
-//        HBox chatBoxHBox = new HBox();
-//        chatBoxHBox.getChildren().addAll(lblMessage, chatBox);
-//        chatBoxHBox.setSpacing(10);
-//        chatBoxHBox.setPadding(new Insets(10, 10, 0, 10));
-//        chatBoxHBox.setAlignment(Pos.CENTER);
-//
-//
-//
-//        chatAreaHBox.setPadding(new Insets(10, 10, 10, 10)); // bob
-//        chatAreaHBox.setSpacing(10);
-//
-//
-//        chatBox.setOnAction(actionEvent -> {
-//            try {
-//                sendToServer(serverAddress, serverPort);
-//                chatBox.setText("");
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        });
-//
-//
-//
-//        chatAreaHBox.setAlignment(Pos.CENTER);
-//
-//
-//        borderPane.setCenter(chatAreaHBox);
-//        borderPane.setBottom(chatBoxHBox);
-//        borderPane.setPadding(new Insets(20, 20, 20, 20));
-//
-//        Scene scene = new Scene(borderPane, 800, 400);
-//        stage.setScene(scene);
-//        stage.setTitle("Chat Program");
-//        stage.setResizable(false);
-//        stage.show();
-//
-//        chatArea.setPrefWidth(stage.getWidth() * 0.7);
-//        chatArea.setPrefHeight(stage.getHeight() * 0.7);
-//        chatBoxHBox.setPrefWidth(stage.getWidth() * chatBox.getWidth());
-//        chatBox.setPrefWidth(stage.getWidth()*0.7 - lblMessage.getWidth() - 10);
-
+    private User loadUserFromInfoJson() {
+        return new User();
     }
 
     private boolean alreadyHaveUserInfo() {
@@ -158,8 +103,10 @@ public class Client extends Application {
 
         Socket connectedServer = new Socket(serverAddress, serverPort);
 
-        String messageToServer = chatBox.getText();
+        //// need to fix
+        MessageEntry messageEntry = new MessageEntry(1, new Date(), userOnDevices.getHandle(), userOnDevices.getEmail(), chatBox.getText(), "userIP", connectedServer.getPort(), userOnDevices.getTextColor().toString());
 
+        String messageToServer = chatBox.getText();
 
 
         DataOutputStream outputStream = new DataOutputStream(connectedServer.getOutputStream());
@@ -172,7 +119,6 @@ public class Client extends Application {
 
     private void changeToSetupScene(Stage stage){
 
-//        GridPane gridPane
 
         Label nameLabel = new Label("Name: ");
         Label handleLabel = new Label("Handle: ");
@@ -188,46 +134,86 @@ public class Client extends Application {
 
         Button createUserButton = new Button("Create A User");
 
-        HBox nameHBox = new HBox(nameLabel, nameTF);
-        HBox handleHBox = new HBox(handleLabel, handleTF);
-        HBox colorHBox = new HBox(colorLabel, colorRedTF, colorGreenTF, colorBlueTF);
-        HBox emailHBox = new HBox(emailLabel, emailTF);
+        HBox colorTF = new HBox(colorRedTF, colorGreenTF, colorBlueTF);
+        colorTF.setAlignment(Pos.CENTER);
+        colorTF.setSpacing(10);
+
+
         HBox buttonHBox = new HBox(createUserButton);
-
-        nameHBox.setAlignment(Pos.CENTER_LEFT);
-        handleHBox.setAlignment(Pos.CENTER_LEFT);
-        colorHBox.setAlignment(Pos.CENTER_LEFT);
-        emailHBox.setAlignment(Pos.CENTER_LEFT);
         buttonHBox.setAlignment(Pos.CENTER);
+        buttonHBox.setPadding(new Insets(10, 10, 10, 10));
 
 
+        //        GridPane gridPane
+        GridPane gridPane = new GridPane();
+        gridPane.setAlignment(Pos.CENTER);
+        gridPane.setHgap(10);
+        gridPane.setVgap(10);
+        gridPane.add(nameLabel, 0, 0);
+        gridPane.add(nameTF, 1, 0);
+        gridPane.add(handleLabel, 0, 1);
+        gridPane.add(handleTF, 1, 1);
+        gridPane.add(colorLabel, 0, 2);
+        gridPane.add(colorTF, 1, 2);
+        gridPane.add(emailLabel, 0, 3);
+        gridPane.add(emailTF, 1, 3);
 
-        VBox setupVbox = new VBox(nameHBox, handleHBox, colorHBox, emailHBox);
-        setupVbox.setAlignment(Pos.CENTER);
 
+        // set place holder for RGB
 
+        colorRedTF.setText("R");
+        colorGreenTF.setText("G");
+        colorBlueTF.setText("B");
 
+        colorRedTF.setAlignment(Pos.CENTER);
+        colorGreenTF.setAlignment(Pos.CENTER);
+        colorBlueTF.setAlignment(Pos.CENTER);
+
+        colorRedTF.setOnMouseClicked(actionEvent -> {
+            colorRedTF.setText("");
+        });
+
+        colorGreenTF.setOnMouseClicked(actionEvent -> {
+            colorGreenTF.setText("");
+        });
+        colorBlueTF.setOnMouseClicked(actionEvent -> {
+            colorBlueTF.setText("");
+        });
+
+        ///////////////
+        // Add new user using input
+        createUserButton.setOnAction(actionEvent -> {
+            userOnDevices = new User(nameTF.getText(), handleTF.getText(), colorRedTF.getText(), colorGreenTF.getText(), colorBlueTF.getText(), emailTF.getText());
+            System.out.println(userOnDevices);
+            storeToInfoJson();
+            changeToChatScene(stage);
+        });
 
         BorderPane borderPane = new BorderPane();
 
-        borderPane.setCenter(setupVbox);
+        borderPane.setCenter(gridPane);
         borderPane.setBottom(buttonHBox);
 
         Scene setUpScene = new Scene(borderPane, 800, 400);
 
 
         stage.setScene(setUpScene);
+        stage.setResizable(false);
         stage.setTitle("Setup");
     }
 
+    private void storeToInfoJson() {
+        //do nothing right now
+    }
+
     private void changeToChatScene(Stage stage){
+
         // Main Scene /////////////////////////////////////////////////////
 
         BorderPane borderPane = new BorderPane();
         chatBox = new TextField();
 
         Label lblMessage = new Label("Message: ");
-//        chatAreaHBox.getChildren().add(lblMessage);
 
         chatArea.setEditable(false); // Makes the chat box un-editable TreyO
 
@@ -236,8 +222,6 @@ public class Client extends Application {
         chatBoxHBox.setSpacing(10);
         chatBoxHBox.setPadding(new Insets(10, 10, 0, 10));
         chatBoxHBox.setAlignment(Pos.CENTER);
-
-
 
         chatAreaHBox.setPadding(new Insets(10, 10, 10, 10)); // bob
         chatAreaHBox.setSpacing(10);
