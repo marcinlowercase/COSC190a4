@@ -4,19 +4,19 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Date;
 
 
 public class Client extends Application {
@@ -31,19 +31,30 @@ public class Client extends Application {
     static String serverAddress;
     static int serverPort;
 
+
+
+
+    /// element of setup screen
+
+    static TextField nameTF = new TextField();
+    static TextField handleTF = new TextField();
+    static TextField colorRedTF = new TextField();
+    static TextField colorGreenTF = new TextField();
+    static TextField colorBlueTF = new TextField();
+    static TextField emailTF = new TextField();
+
+
+
+    // Element to work with JSON
     static String JSONPath = "data_files/info.json";
-
-
-
+    static ObjectMapper mapper = new ObjectMapper();
+    File infoFile = new File(JSONPath);
 
 
     public static void main(String[] args) throws IOException {
           // JSON handler
 
 //        handleUserInfo();
-
-
-
           serverAddress = "localhost";
           serverPort = 9999;
 
@@ -84,27 +95,35 @@ public class Client extends Application {
         if (alreadyHaveUserInfo()){
             userOnDevices = loadUserFromInfoJson();
             changeToChatScene(stage);
+            System.out.println(userOnDevices);
         } else {
             changeToSetupScene(stage);
+
         }
         stage.show();
 
     }
 
     private User loadUserFromInfoJson() {
-        return new User();
+        try (BufferedReader reader = new BufferedReader(new FileReader(JSONPath))) {
+
+            return mapper.readValue(reader.readLine(), new TypeReference<User>() {});
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private boolean alreadyHaveUserInfo() {
-        return new File(JSONPath).exists();
+        return infoFile.exists();
     }
 
     private void sendToServer(String serverAddress, int serverPort) throws IOException {
 
         Socket connectedServer = new Socket(serverAddress, serverPort);
 
-        //// need to fix
-        MessageEntry messageEntry = new MessageEntry(1, new Date(), userOnDevices.getHandle(), userOnDevices.getEmail(), chatBox.getText(), "userIP", connectedServer.getPort(), userOnDevices.getTextColor().toString());
+//        MessageEntry messageEntry = new MessageEntry(1, new Date(), userOnDevices.getHandle(), userOnDevices.getEmail(), chatBox.getText(), "userIP", connectedServer.getPort(), userOnDevices.returnColor().toString());
 
         String messageToServer = chatBox.getText();
 
@@ -125,12 +144,6 @@ public class Client extends Application {
         Label colorLabel = new Label("Color: ");
         Label emailLabel = new Label("Email: ");
 
-        TextField nameTF = new TextField();
-        TextField handleTF = new TextField();
-        TextField colorRedTF = new TextField();
-        TextField colorGreenTF = new TextField();
-        TextField colorBlueTF = new TextField();
-        TextField emailTF = new TextField();
 
         Button createUserButton = new Button("Create A User");
 
@@ -161,14 +174,60 @@ public class Client extends Application {
 
         // set place holder for RGB
 
-        colorRedTF.setText("R");
-        colorGreenTF.setText("G");
-        colorBlueTF.setText("B");
+        colorRedTF.setPromptText("R");
+        colorGreenTF.setPromptText("G");
+        colorBlueTF.setPromptText("B");
 
         colorRedTF.setAlignment(Pos.CENTER);
         colorGreenTF.setAlignment(Pos.CENTER);
         colorBlueTF.setAlignment(Pos.CENTER);
 
+
+        // Number filter for color input
+        colorRedTF.addEventFilter(KeyEvent.KEY_TYPED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (!keyEvent.getCharacter().matches("\\d|\\b")) {
+                    keyEvent.consume();
+                }
+            }
+        });
+        colorGreenTF.addEventFilter(KeyEvent.KEY_TYPED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (!keyEvent.getCharacter().matches("\\d|\\b")) {
+                    keyEvent.consume();
+                }
+            }
+        });
+        colorBlueTF.addEventFilter(KeyEvent.KEY_TYPED, new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                if (!keyEvent.getCharacter().matches("\\d|\\b")) {
+                    keyEvent.consume();
+                }
+            }
+        });
+
+
+        // set preview color
+
+        colorRedTF.setOnKeyTyped(keyEvent -> {
+            changeOutlineColorBaseOnEnterValue();
+        });
+
+        colorGreenTF.setOnKeyTyped(keyEvent -> {
+            changeOutlineColorBaseOnEnterValue();
+        });
+
+        colorBlueTF.setOnKeyTyped(keyEvent -> {
+            changeOutlineColorBaseOnEnterValue();
+        });
+
+
+
+
+        // Empty when click on text field
         colorRedTF.setOnMouseClicked(actionEvent -> {
             colorRedTF.setText("");
         });
@@ -180,14 +239,31 @@ public class Client extends Application {
             colorBlueTF.setText("");
         });
 
+
+
+
+
+
+
         ///////////////
-        // Add new user using input
+        // Add new user using input///////////////////////////////////////////////////////////////////////////////
         createUserButton.setOnAction(actionEvent -> {
             userOnDevices = new User(nameTF.getText(), handleTF.getText(), colorRedTF.getText(), colorGreenTF.getText(), colorBlueTF.getText(), emailTF.getText());
             System.out.println(userOnDevices);
-            storeToInfoJson();
+            try {
+                storeUserToInfoJson(userOnDevices);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
             changeToChatScene(stage);
         });
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
 
         BorderPane borderPane = new BorderPane();
 
@@ -202,9 +278,40 @@ public class Client extends Application {
         stage.setTitle("Setup");
     }
 
-    private void storeToInfoJson() {
-        //do nothing right now
+
+
+//   function to preview color
+    private void changeOutlineColorBaseOnEnterValue() {
+        nameTF.setStyle("-fx-border-color: rgb("+ getValue(colorRedTF.getText()) +","+ getValue(colorGreenTF.getText()) +","+ getValue(colorBlueTF.getText())+"); ");
+        handleTF.setStyle("-fx-border-color: rgb("+ getValue(colorRedTF.getText()) +","+ getValue(colorGreenTF.getText()) +","+ getValue(colorBlueTF.getText())+"); ");
+        colorRedTF.setStyle("-fx-border-color: rgb("+ getValue(colorRedTF.getText()) +","+ getValue(colorGreenTF.getText()) +","+ getValue(colorBlueTF.getText())+"); ");
+        colorGreenTF.setStyle("-fx-border-color: rgb("+ getValue(colorRedTF.getText()) +","+ getValue(colorGreenTF.getText()) +","+ getValue(colorBlueTF.getText())+"); ");
+        colorBlueTF.setStyle("-fx-border-color: rgb("+ getValue(colorRedTF.getText()) +","+ getValue(colorGreenTF.getText()) +","+ getValue(colorBlueTF.getText())+"); ");
+        emailTF.setStyle("-fx-border-color: rgb("+ getValue(colorRedTF.getText()) +","+ getValue(colorGreenTF.getText()) +","+ getValue(colorBlueTF.getText())+"); ");
+//
     }
+
+
+//    return value of the color text field
+    private int getValue(String string){
+        if (string.matches("[0-9]+")){
+            int numberValue = Integer.parseInt(string);
+            if (numberValue > 255){
+                return 255;
+            } else if (numberValue < 0){
+                return 0;
+            } else {
+                return numberValue;
+            }
+        } else {
+            return 0;
+        }
+    }
+
+    private void storeUserToInfoJson(User user) throws IOException {
+        mapper.writeValue(infoFile, user);
+    }
+
 
     private void changeToChatScene(Stage stage){
 

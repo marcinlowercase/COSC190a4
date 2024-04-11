@@ -6,24 +6,30 @@ public class User {
 
     private String username;
     private String handle;
-    private Color textColor;
+
+    private int red;
+    private int green;
+    private int blue;
+
     private String email;
 
 
     public User() {
     }
 
-    public User(String username, String handle, Color textColor, String email) {
-        this.username = username;
-        this.handle = handle;
-        this.textColor = textColor;
-        this.email = email;
-    }
+//    public User(String username, String handle, Color textColor, String email) {
+//        this.username = username;
+//        this.handle = handle;
+//        this.textColor = textColor;
+//        this.email = email;
+//    }
 
     public User(String username, String handle, String red, String green, String blue, String email) {
         this.username = username;
         this.handle = handle;
-        this.textColor = Color.rgb(Integer.parseInt(red), Integer.parseInt(green), Integer.parseInt(blue));
+        this.red = Integer.parseInt(red);
+        this.green = Integer.parseInt(green);
+        this.blue = Integer.parseInt(blue);
         this.email = email;
     }
 
@@ -39,8 +45,33 @@ public class User {
 //        return textColor;
 //    }
 
-    public Color getTextColor() {
-        return textColor;
+
+    public int getRed() {
+        return red;
+    }
+
+    public void setRed(int red) {
+        this.red = red;
+    }
+
+    public int getGreen() {
+        return green;
+    }
+
+    public void setGreen(int green) {
+        this.green = green;
+    }
+
+    public int getBlue() {
+        return blue;
+    }
+
+    public void setBlue(int blue) {
+        this.blue = blue;
+    }
+
+    public Color returnColor() {
+        return Color.rgb(red, green, blue);
     }
 
 
@@ -56,9 +87,7 @@ public class User {
         this.handle = handle;
     }
 
-    public void setTextColor(String red, String green, String blue) {
-        this.textColor = Color.rgb(Integer.parseInt(red), Integer.parseInt(green), Integer.parseInt(blue));
-    }
+
 
     public void setEmail(String email) {
         this.email = email;
@@ -72,11 +101,11 @@ public class User {
                 + "\", \"handle\": \""
                 + handle
                 + "\", \"red\": \""
-                + (int) (textColor.getRed() * 255 )
+                + red
                 + "\", \"green\": \""
-                + (int) (textColor.getGreen() * 255 )
+                + green
                 + "\", \"blue\": \""
-                + (int) (textColor.getBlue() * 255 )
+                + blue
                 + "\", \"email\": \""
                 + email
                 + "\" }";
