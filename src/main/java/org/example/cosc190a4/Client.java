@@ -30,11 +30,10 @@ public class Client extends Application {
 
 
 
+
     static User userOnDevices;
     static String serverAddress = "localhost";
     static int serverPort = 9999;
-
-
 
 
     /// element of setup screen
@@ -137,6 +136,13 @@ public class Client extends Application {
         ObjectOutputStream outputStreamToServer = new ObjectOutputStream(connectedServer.getOutputStream());
         MessageEntry messageEntryToSend = new MessageEntry(new Date(), userOnDevices.getHandle(), userOnDevices.getEmail(), chatBox.getText(), userOnDevices.getRed(), userOnDevices.getGreen(), userOnDevices.getBlue() );
         outputStreamToServer.writeObject(messageEntryToSend);
+
+
+//        Thread displayMessagesThread = new Thread(() -> getMessagesFromServerAndDisplay(connectedServer));
+//        displayMessagesThread.setDaemon(true);
+//        displayMessagesThread.start();
+
+
 
 //        DataOutputStream outputStream = new DataOutputStream(connectedServer.getOutputStream());
 //
@@ -358,12 +364,20 @@ public class Client extends Application {
             exitAlert.setContentText("Are you sure you want to exit?");
             Optional<ButtonType> result = exitAlert.showAndWait();
 
-            if (result.get() == ButtonType.OK) Platform.exit();
+            if (result.get() == ButtonType.OK) {
+
+
+                /// Output here to change send that this user is quit
+
+
+                Platform.exit();
+            }
             else {
                 windowEvent.consume();
                 exitAlert.close();
             }
         });
+
 
 
         chatAreaHBox.setAlignment(Pos.CENTER);
@@ -383,6 +397,16 @@ public class Client extends Application {
         chatArea.setPrefHeight(stage.getHeight() * 0.7);
         chatBoxHBox.setPrefWidth(stage.getWidth() * chatBox.getWidth());
         chatBox.setPrefWidth(stage.getWidth()*0.7 /*- lblMessage.getWidth() - 10*/);
+    }
+
+    private void getMessagesFromServerAndDisplay(Socket socket) {
+        try (DataInputStream inputMessagesStreamFromServer = new DataInputStream(socket.getInputStream())){
+
+            chatArea.setText(inputMessagesStreamFromServer.readUTF());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

@@ -11,12 +11,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.io.DataInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.Optional;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -73,11 +72,17 @@ public class Operations extends Application {
         Scene scene = new Scene(borderPane, 800, 400);
 
 
+        // Show log button;
+        showLog.setOnAction(actionEvent -> {
+            showLogFromDB();
+        });
+
+
         // Clear log button
 
         clearLog.setOnAction(actionEvent -> {
+            logArea.setText("");
             clearEverythingFromDB();
-            System.out.println("Cleared");
         });
 
 
@@ -108,6 +113,33 @@ public class Operations extends Application {
         Thread startServerThread = new Thread(() -> startServer());
         startServerThread.setDaemon(true);
         startServerThread.start();
+
+
+
+    }
+
+    private void showLogFromDB() {
+        logArea.setText("");
+
+        String getLog = "SELECT ReceivedTimeStamp, ReceviedFromUserHandle, ReceviedFromUserEmail, ReceivedChatMessage FROM ChatLog";
+
+        try {
+            Statement getLogStatement = connection.createStatement();
+
+            ResultSet logRS = getLogStatement.executeQuery(getLog);
+
+            while (logRS.next()){
+                java.util.Date timeStamp = logRS.getDate(1);
+                String handle = logRS.getString(2);
+                String email = logRS.getString(3);
+                String message = logRS.getString(4);
+                logArea.appendText(timeStamp + "..." + handle + "..." + email + "..." + message + "\n");
+            }
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
 
     }
@@ -151,40 +183,35 @@ public class Operations extends Application {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
 
-//                System.out.println("Accepted connection from: " + socket.getInetAddress().getHostAddress());
-
-//                DataInputStream inputStreamFromClient = new DataInputStream(socket.getInputStream());
 
 
                 Thread receiveMessageFromClientThread = new Thread(() -> receiveMessageEntryFromClient(clientSocket));
                 receiveMessageFromClientThread.setDaemon(true);
                 receiveMessageFromClientThread.start();
 
-//                ObjectInputStream inputStreamFromClient = new ObjectInputStream(clientSocket.getInputStream());
+//                Thread responseToClient = new Thread(()->displayMessageToClient(clientSocket));
+//                responseToClient.setDaemon(true);
+//                responseToClient.start();
 
 
-//                logString.append(inputStreamFromClient.readUTF());
-//                logString.append("\n");
-//                logField.setText(logString.toString());
-//                logArea.appendText(inputStreamFromClient.readUTF() + "\n");
 
             }
-
-
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     private void receiveMessageEntryFromClient(Socket socket) {
-        try (ObjectInputStream inputStreamFromClient = new ObjectInputStream(socket.getInputStream());) {
+        try ( ObjectInputStream inputStreamFromClient = new ObjectInputStream(socket.getInputStream())){
+
+
             while (true) {
+
                 MessageEntry newMessageEntry = (MessageEntry) inputStreamFromClient.readObject();
 
                 System.out.println(newMessageEntry);
 
                 writeNewMessageEntryToDataBase(newMessageEntry, socket);
-
 
             }
         } catch (IOException e) {
@@ -196,8 +223,43 @@ public class Operations extends Application {
         }
     }
 
+    private void displayMessageToClient(Socket socket) {
+
+        StringBuilder displayMessages = new StringBuilder();
+
+        String getLog = "SELECT ReceviedFromUserHandle, ReceivedChatMessage FROM ChatLog";
+
+        try (DataOutputStream outputMessagesStreamToClient = new DataOutputStream(socket.getOutputStream())) {
+            Statement getLogStatement = connection.createStatement();
+
+            ResultSet logRS = getLogStatement.executeQuery(getLog);
+
+            while (logRS.next()){
+
+                String handle = logRS.getString(1);
+                String message = logRS.getString(2);
+
+                displayMessages.append("(");
+                displayMessages.append(handle);
+                displayMessages.append(")");
+                displayMessages.append(message);
+                displayMessages.append("\n");
+
+            }
+
+            outputMessagesStreamToClient.writeUTF(displayMessages.toString());
+
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     private void writeNewMessageEntryToDataBase(MessageEntry messageEntry, Socket socket) throws SQLException, ClassNotFoundException {
-        lock.lock();
+
 
         getMessageIDCount();
         System.out.println(messageIDCount);
@@ -216,13 +278,13 @@ public class Operations extends Application {
         messageEntry.setUserPort(socket.getPort());
         preparedStatement.setInt(7, messageEntry.getUserPort());
         preparedStatement.setString(8, Color.rgb(messageEntry.getUserPreferredColorR(), messageEntry.getUserPreferredColorG(), messageEntry.getUserPreferredColorB()).toString());
-
+        lock.lock();
         preparedStatement.execute();
-
+        lock.unlock();
 
         System.out.println("Hello " + messageEntry);
 
-        lock.unlock();
+
     }
 
     private void getMessageIDCount() throws SQLException {
@@ -233,10 +295,5 @@ public class Operations extends Application {
         }
         countIDMessageRS.close();
     }
-
-    private void writeToDB() {
-
-    }
-
 
 }
