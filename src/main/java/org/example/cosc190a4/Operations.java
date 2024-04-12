@@ -180,12 +180,14 @@ public class Operations extends Application {
 //            System.out.println("Server start in socket: " + 9999);
 
             Platform.runLater(() -> System.out.println("Server started. Waiting for connections on port " + 9999 + "\n"));
+            Socket clientSocket;
             while (true) {
-                Socket clientSocket = serverSocket.accept();
+                clientSocket = serverSocket.accept();
 
 
+                Socket finalClientSocket = clientSocket;
 
-                Thread receiveMessageFromClientThread = new Thread(() -> receiveMessageEntryFromClient(clientSocket));
+                Thread receiveMessageFromClientThread = new Thread(() -> receiveMessageEntryFromClient(finalClientSocket));
                 receiveMessageFromClientThread.setDaemon(true);
                 receiveMessageFromClientThread.start();
 
@@ -212,6 +214,11 @@ public class Operations extends Application {
                 System.out.println(newMessageEntry);
 
                 writeNewMessageEntryToDataBase(newMessageEntry, socket);
+
+                displayMessageToClient(socket);
+
+
+                // exception here
 
             }
         } catch (IOException e) {

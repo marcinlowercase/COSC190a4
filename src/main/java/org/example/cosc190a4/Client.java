@@ -138,9 +138,9 @@ public class Client extends Application {
         outputStreamToServer.writeObject(messageEntryToSend);
 
 
-//        Thread displayMessagesThread = new Thread(() -> getMessagesFromServerAndDisplay(connectedServer));
-//        displayMessagesThread.setDaemon(true);
-//        displayMessagesThread.start();
+        Thread displayMessagesThread = new Thread(() -> getMessagesFromServerAndDisplay(connectedServer));
+        displayMessagesThread.setDaemon(true);
+        displayMessagesThread.start();
 
 
 
