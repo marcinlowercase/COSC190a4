@@ -132,11 +132,11 @@ public class Client extends Application {
 
 //        MessageEntry messageEntry = new MessageEntry(1, new Date(), userOnDevices.getHandle(), userOnDevices.getEmail(), chatBox.getText(), "userIP", connectedServer.getPort(), userOnDevices.returnColor().toString());
 
-        String messageToServer = chatBox.getText();
-
+//        String messageToServer = chatBox.getText();
 
         ObjectOutputStream outputStreamToServer = new ObjectOutputStream(connectedServer.getOutputStream());
-        outputStreamToServer.writeObject(new MessageEntry(new Date(), userOnDevices.getHandle(), userOnDevices.getEmail(), chatBox.getText(), userOnDevices.returnColor() ));
+        MessageEntry messageEntryToSend = new MessageEntry(new Date(), userOnDevices.getHandle(), userOnDevices.getEmail(), chatBox.getText(), userOnDevices.getRed(), userOnDevices.getGreen(), userOnDevices.getBlue() );
+        outputStreamToServer.writeObject(messageEntryToSend);
 
 //        DataOutputStream outputStream = new DataOutputStream(connectedServer.getOutputStream());
 //
@@ -289,8 +289,7 @@ public class Client extends Application {
     }
 
 
-
-//   function to preview color
+    //   function to preview color
     private void changeOutlineColorBaseOnEnterValue() {
         nameTF.setStyle("-fx-border-color: rgb("+ getValue(colorRedTF.getText()) +","+ getValue(colorGreenTF.getText()) +","+ getValue(colorBlueTF.getText())+"); ");
         handleTF.setStyle("-fx-border-color: rgb("+ getValue(colorRedTF.getText()) +","+ getValue(colorGreenTF.getText()) +","+ getValue(colorBlueTF.getText())+"); ");
@@ -300,9 +299,7 @@ public class Client extends Application {
         emailTF.setStyle("-fx-border-color: rgb("+ getValue(colorRedTF.getText()) +","+ getValue(colorGreenTF.getText()) +","+ getValue(colorBlueTF.getText())+"); ");
 //
     }
-
-
-//    return value of the color text field
+    //    return value of the color text field
     private int getValue(String string){
         if (string.matches("[0-9]+")){
             int numberValue = Integer.parseInt(string);

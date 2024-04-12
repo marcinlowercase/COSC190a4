@@ -2,9 +2,10 @@ package org.example.cosc190a4;
 
 import javafx.scene.paint.Color;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class MessageEntry {
+public class MessageEntry implements Serializable {
     private int id;
     private Date timeStamp;
     private String userHandle;
@@ -13,15 +14,30 @@ public class MessageEntry {
     private String chatMessage;
     private String userIP;
     private int userPort;
-    private Color userPreferredColor;
+//    private Color userPreferredColor;
+    private int userPreferredColorR;
+    private int userPreferredColorG;
+    private int userPreferredColorB;
 
-    public MessageEntry(Date timeStamp, String userHandle, String userEmail, String chatMessage, Color userPreferredColor) {
+
+    public MessageEntry( Date timeStamp, String userHandle, String userEmail, String chatMessage, int userPreferredColorR, int userPreferredColorG, int userPreferredColorB) {
         this.timeStamp = timeStamp;
         this.userHandle = userHandle;
         this.userEmail = userEmail;
         this.chatMessage = chatMessage;
-        this.userPreferredColor = userPreferredColor;
+        this.userPreferredColorR = userPreferredColorR;
+        this.userPreferredColorG = userPreferredColorG;
+        this.userPreferredColorB = userPreferredColorB;
+//        this.userPreferredColor = Color.rgb(userPreferredColorR, userPreferredColorG, userPreferredColorB);
     }
+
+//    public MessageEntry(Date timeStamp, String userHandle, String userEmail, String chatMessage, Color userPreferredColor) {
+//        this.timeStamp = timeStamp;
+//        this.userHandle = userHandle;
+//        this.userEmail = userEmail;
+//        this.chatMessage = chatMessage;
+//        this.userPreferredColor = userPreferredColor;
+//    }
 
 
 
@@ -69,12 +85,37 @@ public class MessageEntry {
         return userPort;
     }
 
-    public Color getUserPreferredColor() {
-        return userPreferredColor;
+//    public Color getUserPreferredColor() {
+//        return userPreferredColor;
+//    }
+
+//    public void setUserPreferredColor(Color userPreferredColor) {
+//        this.userPreferredColor = userPreferredColor;
+//    }
+
+
+    public int getUserPreferredColorR() {
+        return userPreferredColorR;
     }
 
-    public void setUserPreferredColor(Color userPreferredColor) {
-        this.userPreferredColor = userPreferredColor;
+    public void setUserPreferredColorR(int userPreferredColorR) {
+        this.userPreferredColorR = userPreferredColorR;
+    }
+
+    public int getUserPreferredColorG() {
+        return userPreferredColorG;
+    }
+
+    public void setUserPreferredColorG(int userPreferredColorG) {
+        this.userPreferredColorG = userPreferredColorG;
+    }
+
+    public int getUserPreferredColorB() {
+        return userPreferredColorB;
+    }
+
+    public void setUserPreferredColorB(int userPreferredColorB) {
+        this.userPreferredColorB = userPreferredColorB;
     }
 
     public void setId(int id) {
@@ -89,4 +130,19 @@ public class MessageEntry {
         this.userPort = userPort;
     }
 
+    @Override
+    public String toString() {
+        return "MessageEntry{" +
+                "id=" + id +
+                ", timeStamp=" + timeStamp +
+                ", userHandle='" + userHandle + '\'' +
+                ", userEmail='" + userEmail + '\'' +
+                ", chatMessage='" + chatMessage + '\'' +
+                ", userIP='" + userIP + '\'' +
+                ", userPort=" + userPort +
+                ", userPreferredColorR=" + userPreferredColorR +
+                ", userPreferredColorG=" + userPreferredColorG +
+                ", userPreferredColorB=" + userPreferredColorB +
+                '}';
+    }
 }
